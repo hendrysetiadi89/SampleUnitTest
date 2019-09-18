@@ -45,7 +45,6 @@ class MainActivity : AppCompatActivity() {
             FetchWebsiteAsyncTask(object : Listener {
                 override fun onSuccess(result: String?) {
                     editText.setText(result)
-//            editText.setText("lalala")
                     recyclerView.adapter = MyAdapter()
                 }
             }).execute()
@@ -92,9 +91,9 @@ class MainActivity : AppCompatActivity() {
     fun clickMe(view: View) {
         val previousText = editText.text.toString()
         if (previousText == "You clicked me after 5 seconds") {
-            editText.setText(R.string.you_clicked_me)
-        } else {
             editText.setText(R.string.you_clicked_me_2)
+        } else {
+            editText.setText(R.string.you_clicked_me)
         }
         Handler().postDelayed({ editText.setText("You clicked me after 5 seconds") }, 10000)
     }

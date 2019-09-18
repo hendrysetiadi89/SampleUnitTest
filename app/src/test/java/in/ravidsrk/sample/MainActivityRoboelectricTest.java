@@ -6,12 +6,18 @@ import android.widget.EditText;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.apache.tools.ant.Main;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.Shadows;
 import org.robolectric.android.controller.ActivityController;
+import org.robolectric.shadows.ShadowLooper;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,61 +25,60 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(RobolectricTestRunner.class)
 public class MainActivityRoboelectricTest {
 
-    private MainActivity activity;
-    private ActivityController<MainActivity> activityController;
-
-    @Before
-    public void setup() {
-        activityController = Robolectric.buildActivity(MainActivity.class);
-    }
-
     @Test //@Ignore
-    public void clickButton() {
+    public void clickButtonFetch() {
+        ActivityController<MainActivity> activityController = Robolectric.buildActivity(MainActivity.class);
         activityController.create().start().visible();
-        activity = activityController.get();
-        Button button = activity.findViewById(R.id.button);
+        MainActivity activity = activityController.get();
         Button buttonfetch = activity.findViewById(R.id.button_fetch_network);
-        RecyclerView recyclerView = activity.findViewById(R.id.recycler_view);
-        EditText editText = activity.findViewById(R.id.editText);
-        String text = editText.getText().toString();
-        Log.i("TEST HENDRY", text);
-        button.performClick();
-        String text2 = editText.getText().toString();
-        Log.i("TEST HENDRY", text2);
-        Robolectric.flushForegroundThreadScheduler();
-        Robolectric.flushBackgroundThreadScheduler();
-        String text3 = editText.getText().toString();
-        Log.i("TEST HENDRY", text3);
-
-        String text4 = editText.getText().toString();
-        Log.i("TEST HENDRY", text4);
-        button.performClick();
-        String text5 = editText.getText().toString();
-        Log.i("TEST HENDRY", text5);
-        Robolectric.flushForegroundThreadScheduler();
-        Robolectric.flushBackgroundThreadScheduler();
-        String text6 = editText.getText().toString();
-        Log.i("TEST HENDRY", text6);
-
-        MyAdapter myAdapter = (MyAdapter) recyclerView.getAdapter();
-        if (myAdapter!=null) {
-            Log.i("TEST HENDRY", String.valueOf(myAdapter.getItemCount()));
-        }
 
         buttonfetch.performClick();
         Robolectric.flushForegroundThreadScheduler();
         Robolectric.flushBackgroundThreadScheduler();
-        String text7 = editText.getText().toString();
-        myAdapter = (MyAdapter) ((RecyclerView)activity.findViewById(R.id.recycler_view)).getAdapter();
+        int count = 0;
+        ShadowLooper.idleMainLooper(5, TimeUnit.SECONDS);
+        MyAdapter myAdapter = (MyAdapter) ((RecyclerView) activity.findViewById(R.id.recycler_view)).getAdapter();
         if (myAdapter!=null) {
-            System.out.println( String.valueOf(myAdapter.getItemCount()));
-            Log.i("TEST HENDRY", String.valueOf(myAdapter.getItemCount()));
-            Log.i("TEST HENDRY", String.valueOf(myAdapter.getItemCount()));
+            count = myAdapter.getItemCount();
+            System.out.println(String.valueOf(count));
+        } else {
+            System.out.println("adapter is null");
         }
-
-        assertNotNull("test button could not be found", button);
-        assertEquals("button does not contain text 'Click Me!'", "Click Me", button.getText());
+        assertEquals("Count is not 5", 5, count);
     }
+
+    @Test //@Ignore
+    public void clickButton() {
+        ActivityController<MainActivity> activityController = Robolectric.buildActivity(MainActivity.class);
+        activityController.create().start().visible();
+        MainActivity activity = activityController.get();
+        Button button = activity.findViewById(R.id.button);
+        EditText editText = activity.findViewById(R.id.editText);
+        String text = editText.getText().toString();
+        System.out.println("Before click: " + text);
+        button.performClick();
+
+        String text2 = editText.getText().toString();
+        System.out.println("After click 1: " + text2);
+
+        Robolectric.flushForegroundThreadScheduler();
+        Robolectric.flushBackgroundThreadScheduler();
+        String text3 = editText.getText().toString();
+        System.out.println("After click 1 and wait: " + text3);
+
+        button.performClick();
+
+        String text4 = editText.getText().toString();
+        System.out.println("After click 2: " + text4);
+
+        Robolectric.flushForegroundThreadScheduler();
+        Robolectric.flushBackgroundThreadScheduler();
+        String text5 = editText.getText().toString();
+        System.out.println("After click 2 and wait: " + text5);
+
+    }
+
+
     static class MyAsyncTask extends android.os.AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... voids) {
